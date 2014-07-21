@@ -20,7 +20,6 @@ def generate(id, file_name, config_name):
     filepath = logic.get_file_location(file_name, id, config_name)
     if not os.path.exists(filepath):
         file = object_or_404(File.by_id(id))
-        authz.require(authz.project_edit(file.project))
         if config_name not in IMAGE_CONFIG:
             abort(404)
         try:
