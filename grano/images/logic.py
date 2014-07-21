@@ -7,7 +7,11 @@ from urlparse import urlparse
 import colander
 from PIL import Image
 
+from grano.core import app
 from grano.images.constants import ACCEPTED_MIMETYPES
+
+
+IMAGE_DIR = app.config.get('IMAGE_DIR')
 
 
 def aspect_ratio(width, height):
@@ -33,23 +37,18 @@ def calculate_crop_box((config_w, config_h), (w, h)):
         return (int(round(origin_x)), 0, int(round(origin_x + new_w)), h)
 
 
-def make_url(file, config_name, file_name=None):
-    # TODO: base URL on some image upload setting
-    return 'file://%s' % os.path.normpath(os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        '../../images',
-        '%s-%s-%s.png' % (
-            file_name or os.path.splitext(os.path.basename(file.file_name))[0],
-            file.id,
-            config_name
-        )
+def get_file_location(file_name, file_id, config_name):
+    return os.path.join(IMAGE_DIR, '%s-%s-%s.png' % (
+        file_name,
+        file_id,
+        config_name
     ))
 
 
-def upload(file, url):
-    """ Copy file to specified url (only local file system supported for now) """
+def store_file(file, url):
+    """ Copy file to specified location """
     result = urlparse(url)
-    if result.scheme == 'file':
+    if result.scheme == 'file' or result.scheme == '':
         assert result.netloc == ''
         dir = os.path.dirname(result.path)
         if not os.path.exists(dir):
@@ -58,7 +57,7 @@ def upload(file, url):
             file.seek(0)
             shutil.copyfileobj(file, f)
     else:
-        raise ValueError("Only 'file' protocol supported at the moment")
+        raise ValueError("Only local storage supported at the moment")
 
 
 def transform(file, size=None):
