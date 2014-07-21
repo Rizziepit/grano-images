@@ -33,13 +33,13 @@ def calculate_crop_box((config_w, config_h), (w, h)):
         return (int(round(origin_x)), 0, int(round(origin_x + new_w)), h)
 
 
-def make_url(file, config_name):
+def make_url(file, config_name, file_name=None):
     # TODO: base URL on some image upload setting
     return 'file://%s' % os.path.normpath(os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         '../../images',
         '%s-%s-%s.png' % (
-            os.path.splitext(os.path.basename(file.file_name))[0],
+            file_name or os.path.splitext(os.path.basename(file.file_name))[0],
             file.id,
             config_name
         )
@@ -69,7 +69,7 @@ def transform(file, size=None):
     if size is not None:
         # crop and scale ourselves since Image.thumbnail
         # doesn't change the aspect ratio
-        crop_box = calculate_crop_box(size)
+        crop_box = calculate_crop_box(size, image.size)
         image = image.crop(crop_box)
         image = image.resize(size, Image.ANTIALIAS)
     out = StringIO()

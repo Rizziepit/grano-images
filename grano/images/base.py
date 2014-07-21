@@ -1,6 +1,6 @@
 from grano.core import app
 from grano.interface import Startup
-from grano.ui.view import blueprint
+from grano.images.view import blueprint
 
 
 class Installer(Startup):
